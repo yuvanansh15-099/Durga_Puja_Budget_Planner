@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Durga Puja Interactive Budget Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fdf6e3; color: #333; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; gap: 30px; flex-wrap: wrap; }
+        .controls { flex: 1; min-width: 300px; }
+        .visualization { flex: 1; min-width: 300px; text-align: center; }
+        h1 { color: #d32f2f; text-align: center; width: 100%; }
+        .slider-group { margin-bottom: 15px; }
+        .slider-group label { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
+        input[type=range] { width: 100%; accent-color: #d32f2f; }
+        .toggle-group { margin-top: 20px; background: #fff3e0; padding: 15px; border-radius: 8px; }
+        .toggle-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .total-box { background: #d32f2f; color: white; padding: 15px; border-radius: 8px; font-size: 24px; font-weight: bold; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Durga Puja Budget Planner</h1>
+    
+    <div class="controls">
+        <h3>Core Expenses (Sliders)</h3>
+        
+        <div class="slider-group">
+            <label>Murti (Idol) <span id="murti-val">₹50,000</span></label>
+            <input type="range" id="murti" min="10000" max="200000" step="5000" value="50000" oninput="updateChart()">
+        </div>
+        <div class="slider-group">
+            <label>Pandal & Decor <span id="pandal-val">₹150,000</span></label>
+            <input type="range" id="pandal" min="50000" max="500000" step="10000" value="150000" oninput="updateChart()">
+        </div>
+        <div class="slider-group">
+            <label>Lighting & Sound <span id="lighting-val">₹60,000</span></label>
+            <input type="range" id="lighting" min="20000" max="300000" step="5000" value="60000" oninput="updateChart()">
+        </div>
+        <div class="slider-group">
+            <label>Prasad & Bhog <span id="prasad-val">₹30,000</span></label>
+            <input type="range" id="prasad" min="10000" max="100000" step="2000" value="30000" oninput="updateChart()">
+        </div>
+        <div class="slider-group">
+            <label>Puja Samagri <span id="samagri-val">₹20,000</span></label>
+            <input type="range" id="samagri" min="10000" max="50000" step="1000" value="20000" oninput="updateChart()">
+        </div>
+
+        <div class="toggle-group">
+            <h3>Add-on Features (Toggles)</h3>
+            <div class="toggle-item">
+                <label><input type="checkbox" id="cultural" onchange="updateChart()"> Cultural Program (+₹30,000)</label>
+            </div>
+            <div class="toggle-item">
+                <label><input type="checkbox" id="dj" onchange="updateChart()"> DJ & Visarjan (+₹20,000)</label>
+            </div>
+            <div class="toggle-item">
+                <label><input type="checkbox" id="vip" onchange="updateChart()"> VIP Reception (+₹15,000)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="visualization">
+        <canvas id="budgetChart"></canvas>
+        <div class="total-box">
+            Total Budget: <span id="total-budget">₹310,000</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    let budgetChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Murti', 'Pandal', 'Lighting', 'Prasad', 'Samagri', 'Add-ons'],
+            datasets: [{
+                data: [50000, 150000, 60000, 30000, 20000, 0],
+                backgroundColor: ['#ff9999', '#ffcc99', '#ffff99', '#99ff99', '#99ccff', '#cc99ff'],
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    function updateChart() {
+        // Get Slider Values
+        let murti = parseInt(document.getElementById('murti').value);
+        let pandal = parseInt(document.getElementById('pandal').value);
+        let lighting = parseInt(document.getElementById('lighting').value);
+        let prasad = parseInt(document.getElementById('prasad').value);
+        let samagri = parseInt(document.getElementById('samagri').value);
+
+        // Update Slider UI
+        document.getElementById('murti-val').innerText = '₹' + murti.toLocaleString();
+        document.getElementById('pandal-val').innerText = '₹' + pandal.toLocaleString();
+        document.getElementById('lighting-val').innerText = '₹' + lighting.toLocaleString();
+        document.getElementById('prasad-val').innerText = '₹' + prasad.toLocaleString();
+        document.getElementById('samagri-val').innerText = '₹' + samagri.toLocaleString();
+
+        // Get Toggle Values
+        let addons = 0;
+        if(document.getElementById('cultural').checked) addons += 30000;
+        if(document.getElementById('dj').checked) addons += 20000;
+        if(document.getElementById('vip').checked) addons += 15000;
+
+        // Math Sanity Check & Total
+        let total = murti + pandal + lighting + prasad + samagri + addons;
+        document.getElementById('total-budget').innerText = '₹' + total.toLocaleString();
+
+        // Update Chart Data
+        budgetChart.data.datasets[0].data = [murti, pandal, lighting, prasad, samagri, addons];
+        budgetChart.update();
+    }
+</script>
+</body>
+</html>
